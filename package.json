@@ -1,0 +1,28 @@
+{
+  "name": "simon",
+  "private": true,
+  "version": "0.1.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "bsb -make-world -w",
+    "build": "webpack -w",
+    "server": "webpack && webpack-dev-server --inline --port=4000",
+    "clean": "bsb -clean-world"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "react": "^15.4.2",
+    "react-dom": "^15.4.2",
+    "reason-react": ">=0.2.1"
+  },
+  "devDependencies": {
+    "bs-platform": "^1.8.1",
+    "html-webpack-plugin": "^2.30.1",
+    "webpack": "^2.7.0",
+    "webpack-dev-server": "^2.8.2"
+  }
+}
