@@ -1,7 +1,8 @@
 /* ---------------------------
  * Helpers
  * --------------------------- */
-/* `ReasonReact.stringToElement` is a little verbose, so alias it: */
+/* `ReasonReact.stringToElement` is a little verbose, so alias it.
+ * NOTE this particular vagary get annoying quickly. */
 let stringToEl = ReasonReact.stringToElement;
 
 /* ReasonReact doesn't play nice with React Devtools. This is a pain
@@ -12,6 +13,19 @@ let intListToReactString intList =>
 
 /* ---------------------------
  * SequenceDisplay component
+ *
+ * This, on mount, diplays a sequence of list items.
+ * NOTE Initially, I tried to make this do too much - I included
+ * the controls within the component, and tried to hook into
+ * `didUpdate`, switching internal state. After a few failed
+ * attempts, I used something that's basically identical to
+ * the example in the guide.
+ * TODO: replace `setinterval` with a `requestAnimationFrame`
+ * based solution. Slight wierdness - Bs_WebIncubator has a
+ * binding for `requestAnimationFrame`, but not for
+ * `cancelAnimationFrame`.
+ * TODO: this has to notify the parent that it's finished.
+ * Need a callback passed as a prop.
  * --------------------------- */
 type action =
   | Tick;
@@ -24,14 +38,14 @@ type state = {
 let sequence state =>
   switch state.displaySeq {
   | [] => ReasonReact.Update {...state, timerId: ref None}
-  | _ => ReasonReact.Update {...state, displaySeq: Helpers.dropHead state.displaySeq}
+  | [x, ...xs] => ReasonReact.Update {...state, displaySeq: xs}
   };
 
 let component = ReasonReact.reducerComponent "SequenceDisplay";
 
-let make ::seq ::timeoutDelay=1000 _children => {
+let make ::displaySeq ::timeoutDelay=1000 _children => {
   ...component,
-  initialState: fun () => {displaySeq: seq, timerId: ref None},
+  initialState: fun () => {displaySeq: displaySeq, timerId: ref None},
   reducer: fun action state =>
     switch action {
     | Tick => sequence state
