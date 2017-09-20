@@ -35,20 +35,21 @@ type state = {
   timerId: ref (option Js.Global.intervalId)
 };
 
-let sequence state =>
+let sequence state sequenceCompleteNotifier =>
   switch state.displaySeq {
-  | [] => ReasonReact.Update {...state, timerId: ref None}
+  | [] =>
+    ReasonReact.UpdateWithSideEffects {...state, timerId: ref None} sequenceCompleteNotifier
   | [x, ...xs] => ReasonReact.Update {...state, displaySeq: xs}
   };
 
 let component = ReasonReact.reducerComponent "SequenceDisplay";
 
-let make ::displaySeq ::timeoutDelay=1000 _children => {
+let make ::displaySeq ::timeoutDelay=1000 ::displayEndNotifier _children => {
   ...component,
-  initialState: fun () => {displaySeq: displaySeq, timerId: ref None},
+  initialState: fun () => {displaySeq, timerId: ref None},
   reducer: fun action state =>
     switch action {
-    | Tick => sequence state
+    | Tick => sequence state displayEndNotifier
     },
   didMount: fun self => {
     self.state.timerId :=

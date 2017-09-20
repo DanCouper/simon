@@ -27,6 +27,7 @@ let gameStateToReactStr gameState =>
 type action =
   | Start
   | Display
+  | DisplayComplete
   | Play;
 
 type state = {gameState, seq: list int};
@@ -40,6 +41,7 @@ let make _children => {
     switch action {
     | Start => ReasonReact.Update {...state, gameState: Ready}
     | Display => ReasonReact.Update {...state, gameState: Displaying}
+    | DisplayComplete => ReasonReact.Update {...state, gameState: Displayed}
     | Play => ReasonReact.NoUpdate
     },
   render: fun self =>
@@ -50,6 +52,7 @@ let make _children => {
           <SequenceDisplay
             displaySeq=[1, 2, 3, 4, 5, 6, 7]
             timeoutDelay=500
+            displayEndNotifier=(self.reduce (fun _ => DisplayComplete))
           /> :
           ReasonReact.nullElement
       )
