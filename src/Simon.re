@@ -34,7 +34,7 @@ type state = {gameState, seq: list int};
 
 let component = ReasonReact.reducerComponent "Simon";
 
-let make _children => {
+let make ::rounds ::keys _children => {
   ...component,
   initialState: fun () => {gameState: Waiting, seq: []},
   reducer: fun action state =>
