@@ -8,7 +8,9 @@ module.exports = {
     filename: 'app.js'
   },
   devServer: {
-    contentBase: path.join(__dirname, "/dist")
+    contentBase: path.join(__dirname, "/dist"),
+    inline: true,
+    port: 4000
   },
   plugins: [new HtmlWebpackPlugin({
     template: path.join(__dirname, '/src/index.ejs')

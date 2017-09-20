@@ -8,7 +8,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "bsb -make-world -w",
     "build": "webpack -w",
-    "server": "webpack && webpack-dev-server --inline --port=4000",
+    "server": "webpack && webpack-dev-server",
     "clean": "bsb -clean-world"
   },
   "keywords": [],
