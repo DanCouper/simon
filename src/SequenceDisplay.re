@@ -15,7 +15,7 @@ let intListToReactString intList =>
  * SequenceDisplay component
  *
  * This, on mount, diplays a sequence of list items.
- * NOTE Initially, I tried to make this do too much - I included
+ * NOTE: Initially, I tried to make this do too much - I included
  * the controls within the component, and tried to hook into
  * `didUpdate`, switching internal state. After a few failed
  * attempts, I used something that's basically identical to
@@ -26,6 +26,12 @@ let intListToReactString intList =>
  * `cancelAnimationFrame`.
  * TODO: this has to notify the parent that it's finished.
  * Need a callback passed as a prop.
+ * REVIEW: The state _could_ be dispensed with entirely, need to
+ * investigate. Because CSS props can be passed, a keyframe
+ * animation could be generated within the component based on
+ * passed args: the sequence is simple, and the timings linear.
+ * The end event could occur on an `onAnimationEnd` or
+ * `onTransitionEnd` callback. This idea has legs.
  * --------------------------- */
 type action =
   | Tick;
@@ -38,7 +44,8 @@ type state = {
 let sequence state sequenceCompleteNotifier =>
   switch state.displaySeq {
   | [] =>
-    ReasonReact.UpdateWithSideEffects {...state, timerId: ref None} sequenceCompleteNotifier
+    ReasonReact.UpdateWithSideEffects
+      {...state, timerId: ref None} sequenceCompleteNotifier
   | [x, ...xs] => ReasonReact.Update {...state, displaySeq: xs}
   };
 

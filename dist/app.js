@@ -14210,7 +14210,7 @@ function gameStateToReactStr(gameState) {
 
 var component = ReasonReact.reducerComponent("Simon");
 
-function make() {
+function make(_, _$1, _$2) {
   var newrecord = component.slice();
   newrecord[/* render */9] = (function (self) {
       var match = +(self[/* state */4][/* gameState */0] === /* Displaying */2);
@@ -14237,7 +14237,7 @@ function make() {
         case 3 : 
             $js = React.createElement("button", {
                   onClick: Curry._1(self[/* reduce */3], (function () {
-                          return /* Play */2;
+                          return /* Play */3;
                         }))
                 }, "Start Guessing");
             break;
@@ -14264,7 +14264,9 @@ function make() {
                                 ]
                               ]
                             ]
-                          ], /* Some */[500], /* array */[])) : null, $js);
+                          ], /* Some */[500], Curry._1(self[/* reduce */3], (function () {
+                                  return /* DisplayComplete */2;
+                                })), /* array */[])) : null, $js);
     });
   newrecord[/* initialState */10] = (function () {
       return /* record */[
@@ -14285,6 +14287,11 @@ function make() {
                         /* seq */state[/* seq */1]
                       ]]);
         case 2 : 
+            return /* Update */Block.__(0, [/* record */[
+                        /* gameState : Displayed */3,
+                        /* seq */state[/* seq */1]
+                      ]]);
+        case 3 : 
             return /* NoUpdate */0;
         
       }
@@ -14370,7 +14377,7 @@ var Simon       = __webpack_require__(93);
 var ReactDOMRe  = __webpack_require__(94);
 var ReasonReact = __webpack_require__(40);
 
-ReactDOMRe.renderToElementWithId(ReasonReact.element(/* None */0, /* None */0, Simon.make(/* array */[])), "root");
+ReactDOMRe.renderToElementWithId(ReasonReact.element(/* None */0, /* None */0, Simon.make(20, 4, /* array */[])), "root");
 
 /*  Not a pure module */
 
@@ -14433,7 +14440,7 @@ function stringToEl(prim) {
 
 var intListToReactString = Helpers.intListToString;
 
-function sequence(state) {
+function sequence(state, sequenceCompleteNotifier) {
   var match = state[/* displaySeq */0];
   if (match) {
     return /* Update */Block.__(0, [/* record */[
@@ -14441,16 +14448,19 @@ function sequence(state) {
                 /* timerId */state[/* timerId */1]
               ]]);
   } else {
-    return /* Update */Block.__(0, [/* record */[
+    return /* UpdateWithSideEffects */Block.__(3, [
+              /* record */[
                 /* displaySeq */state[/* displaySeq */0],
                 /* timerId */[/* None */0]
-              ]]);
+              ],
+              sequenceCompleteNotifier
+            ]);
   }
 }
 
 var component = ReasonReact.reducerComponent("SequenceDisplay");
 
-function make(displaySeq, $staropt$star, _) {
+function make(displaySeq, $staropt$star, displayEndNotifier, _) {
   var timeoutDelay = $staropt$star ? $staropt$star[0] : 1000;
   var newrecord = component.slice();
   newrecord[/* didMount */4] = (function (self) {
@@ -14469,7 +14479,7 @@ function make(displaySeq, $staropt$star, _) {
             ];
     });
   newrecord[/* reducer */12] = (function (_, state) {
-      return sequence(state);
+      return sequence(state, displayEndNotifier);
     });
   return newrecord;
 }

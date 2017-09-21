@@ -14,7 +14,8 @@ type gameState =
   | Waiting
   | Ready
   | Displaying
-  | Displayed;
+  | Displayed
+  | Playing;
 
 let gameStateToReactStr gameState =>
   switch gameState {
@@ -22,6 +23,7 @@ let gameStateToReactStr gameState =>
   | Ready => stringToEl "Game state: Ready"
   | Displaying => stringToEl "Game state: Displaying"
   | Displayed => stringToEl "Game state: Displayed"
+  | Playing => stringToEl "Game state: Playing"
   };
 
 type action =
@@ -42,19 +44,22 @@ let make ::rounds ::keys _children => {
     | Start => ReasonReact.Update {...state, gameState: Ready}
     | Display => ReasonReact.Update {...state, gameState: Displaying}
     | DisplayComplete => ReasonReact.Update {...state, gameState: Displayed}
-    | Play => ReasonReact.NoUpdate
+    | Play => ReasonReact.Update {...state, gameState: Playing}
     },
   render: fun self =>
     <figure>
       <p> (gameStateToReactStr self.state.gameState) </p>
       (
-        self.state.gameState == Displaying ?
+        switch self.state.gameState {
+        | Displaying =>
           <SequenceDisplay
             displaySeq=[1, 2, 3, 4, 5, 6, 7]
             timeoutDelay=500
             displayEndNotifier=(self.reduce (fun _ => DisplayComplete))
-          /> :
-          ReasonReact.nullElement
+          />
+        | Playing => <SequenceInput inputs=[{keyValue: 0}, {keyValue: 1}, {keyValue: 2}, {keyValue: 3}] />
+        | _ => ReasonReact.nullElement
+        }
       )
       (
         switch self.state.gameState {
@@ -71,6 +76,7 @@ let make ::rounds ::keys _children => {
           <button onClick=(self.reduce (fun _ => Play))>
             (stringToEl "Start Guessing")
           </button>
+        | Playing => ReasonReact.nullElement
         }
       )
     </figure>
