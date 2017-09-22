@@ -1,27 +1,24 @@
-type input = {keyValue: int};
-
-let test = [{keyValue: 0}, {keyValue: 1}, {keyValue: 2}, {keyValue: 3}];
+type inputModel = Simon.inputModel;
 
 let component = ReasonReact.statelessComponent "SequenceInput";
 
-let make ::inputs=test _children => {
+let make ::inputModels _children => {
   ...component,
-  render: fun self =>
+  render: fun _self =>
     <figure>
       (
         ReasonReact.arrayToElement (
-          Array.of_list (
-            List.map
-              (
-                fun {keyValue} =>
-                  <button
-                    value=(string_of_int keyValue)
-                    key=(string_of_int keyValue)>
-                    (ReasonReact.stringToElement (string_of_int keyValue))
-                  </button>
-              )
-              inputs
-          )
+          Array.map
+            (
+              fun input =>
+                <button
+                  value=(string_of_int input.key)
+                  key=(string_of_int input.key)
+                  onClick=input.callback>
+                  (ReasonReact.stringToElement (string_of_int input.key))
+                </button>
+            )
+            inputModels
         )
       )
     </figure>

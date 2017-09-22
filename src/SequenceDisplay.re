@@ -11,6 +11,18 @@ let stringToEl = ReasonReact.stringToElement;
 let intListToReactString intList =>
   stringToEl (Helpers.intListToString intList);
 
+/* FIXME: Having problems with the timer ID ref - given it's an option,
+ * seems to have to pass a lot of boilerplate to extract the ID to
+ * pass to clearInterval when the component unmounts. I think I may
+ * be missing something obvious. */
+exception NoIntervalID string;
+
+let extractId timerId =>
+  switch timerId {
+  | Some x => x
+  | None => raise (NoIntervalID "There is no ID referenced")
+  };
+
 /* ---------------------------
  * SequenceDisplay component
  *
@@ -43,9 +55,7 @@ type state = {
 
 let sequence state sequenceCompleteNotifier =>
   switch state.displaySeq {
-  | [] =>
-    ReasonReact.UpdateWithSideEffects
-      {...state, timerId: ref None} sequenceCompleteNotifier
+  | [] => ReasonReact.SideEffects sequenceCompleteNotifier
   | [x, ...xs] => ReasonReact.Update {...state, displaySeq: xs}
   };
 
@@ -63,5 +73,7 @@ let make ::displaySeq ::timeoutDelay=1000 ::displayEndNotifier _children => {
       Some (Js.Global.setInterval (self.reduce (fun _ => Tick)) timeoutDelay);
     ReasonReact.NoUpdate
   },
+  willUnmount: fun self =>
+    Js.Global.clearInterval (extractId !self.state.timerId),
   render: fun {state} => <p> (intListToReactString state.displaySeq) </p>
 };

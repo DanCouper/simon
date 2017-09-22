@@ -5,6 +5,12 @@
  * NOTE this particular vagary get annoying quickly. */
 let stringToEl = ReasonReact.stringToElement;
 
+/* ReasonReact doesn't play nice with React Devtools. This is a pain
+ * point; for development, manually printing out the state turns out
+ * to be helpful: */
+let gameSeqToReactString seq =>
+  stringToEl ("Current sequence: " ^ Helpers.intListToString seq);
+
 /* ---------------------------
  * SequenceDisplay component
  *
@@ -30,34 +36,66 @@ type action =
   | Start
   | Display
   | DisplayComplete
-  | Play;
+  | Play
+  | Check int;
 
-type state = {gameState, seq: list int};
+type inputModel = {key: int, callback: ReactEventRe.Mouse.t => unit};
+
+let buildInputModelArray numKeys self =>
+  Helpers.buildRange numKeys |>
+  List.map (fun k => {key: k, callback: self.reduce (fun _ => Check k)}) |> Array.of_list;
+
+let nextRound (round: int) (maxRounds: int) =>
+  switch round {
+  | x when x > maxRounds => 0
+  | _ => round + 1
+  };
+
+let growSeq seq round keys maxRounds =>
+  switch round {
+  | x when x > maxRounds => []
+  | _ => seq @ [Random.int keys]
+  };
+
+type state = {gameState, round: int, seq: list int, checkSeq: list int};
 
 let component = ReasonReact.reducerComponent "Simon";
 
-let make ::rounds ::keys _children => {
+let make ::maxRounds=20 ::numKeys=4 _children => {
   ...component,
-  initialState: fun () => {gameState: Waiting, seq: []},
+  initialState: fun () => {gameState: Waiting, round: 0, seq: [], checkSeq: []},
   reducer: fun action state =>
     switch action {
-    | Start => ReasonReact.Update {...state, gameState: Ready}
+    | Start =>
+      ReasonReact.Update {
+        ...state,
+        gameState: Ready,
+        round: nextRound state.round maxRounds,
+        seq: growSeq state.seq state.round numKeys maxRounds
+      }
     | Display => ReasonReact.Update {...state, gameState: Displaying}
     | DisplayComplete => ReasonReact.Update {...state, gameState: Displayed}
     | Play => ReasonReact.Update {...state, gameState: Playing}
+    | Check _ => ReasonReact.NoUpdate
     },
   render: fun self =>
     <figure>
-      <p> (gameStateToReactStr self.state.gameState) </p>
+      <header>
+        <p> (gameStateToReactStr self.state.gameState) </p>
+        <p> (stringToEl ("Round: " ^ string_of_int self.state.round)) </p>
+        <p> (gameSeqToReactString self.state.seq) </p>
+      </header>
+      <hr />
       (
         switch self.state.gameState {
         | Displaying =>
           <SequenceDisplay
-            displaySeq=[1, 2, 3, 4, 5, 6, 7]
+            displaySeq=self.state.seq
             timeoutDelay=500
             displayEndNotifier=(self.reduce (fun _ => DisplayComplete))
           />
-        | Playing => <SequenceInput inputs=[{keyValue: 0}, {keyValue: 1}, {keyValue: 2}, {keyValue: 3}] />
+        | Playing =>
+          <SequenceInput inputModels=(buildInputModelArray numKeys self) />
         | _ => ReasonReact.nullElement
         }
       )
