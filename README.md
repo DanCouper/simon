@@ -19,7 +19,7 @@ The main `Simon` module is a state machine that defines the game state + the act
 it holds the core state of the game (the sequence) and builds it up as the state transitions.
 
 It has three props, `maxRounds`, `numKeys` and `maxRetries` which can be used to configure the game.
-TODO: build out a config component to kick the game off.
+TODO: build out a config component to kick the game off. 
 
 It has two children, the display and the inputs. I would like to just have the inputs, disable & highlight them when displaying, but this turns out to be more work than it's worth in React; mutating the classNames would seem to be the best way, but then I have to write some painful boilerplate. Anyway.
 

@@ -5,35 +5,19 @@
  * NOTE this particular vagary get annoying quickly. */
 let stringToEl = ReasonReact.stringToElement;
 
-/* ReasonReact doesn't play nice with React Devtools. This is a pain
- * point; for development, manually printing out the state turns out
- * to be helpful: */
-let checkSeqToReactString seq =>
-  stringToEl ("Current check sequence: " ^ Helpers.intListToString seq);
-
 /* ---------------------------
  * SequenceDisplay component
  *
  * This, on mount, diplays a number of inputs corresponding
- * to the possible values avvailable in the Simon sequence.
+ * to the possible values available in the Simon sequence.
  *
- * Initially, I tried to have the state logic in the parent;
- * it got too messy, so this gets passed the current sequence,
- * and allows a player to test against it.
- *
- * FIXME: it should take two callbacks - a `complete` and
- * a `fail`, which will be reducers passed from the main
- * component. Logic to follow.
+ * The two passed-in reducer callbacks should correspond to a
+ * complete/fail for the round; how that is dealt with is handled
+ * externally to this module.
  * --------------------------- */
 type checkState =
   | Guessing
   | Complete;
-
-let checkStateToReactStr checkState =>
-  switch checkState {
-  | Guessing => stringToEl "Check state: Guessing"
-  | Complete => stringToEl "Check state: Complete"
-  };
 
 type state = {checkState, currentCheckSeq: list int};
 
@@ -67,10 +51,6 @@ let make ::keys ::checkSeq ::roundCompleteNotifier ::gameOverNotifier _children 
     },
   render: fun self =>
     <figure>
-      <header>
-        <p> (checkStateToReactStr self.state.checkState) </p>
-        <p> (checkSeqToReactString self.state.currentCheckSeq) </p>
-      </header>
       (
         ReasonReact.arrayToElement (
           Array.of_list (

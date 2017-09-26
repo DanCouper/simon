@@ -5,12 +5,6 @@
  * NOTE this particular vagary get annoying quickly. */
 let stringToEl = ReasonReact.stringToElement;
 
-/* ReasonReact doesn't play nice with React Devtools. This is a pain
- * point; for development, manually printing out the state turns out
- * to be helpful: */
-let gameSeqToReactString seq =>
-  stringToEl ("Current sequence: " ^ Helpers.intListToString seq);
-
 /* ---------------------------
  * SequenceDisplay component
  *
@@ -22,15 +16,6 @@ type gameState =
   | Displaying
   | Displayed
   | Playing;
-
-let gameStateToReactStr gameState =>
-  switch gameState {
-  | Waiting => stringToEl "Game state: Waiting"
-  | Ready => stringToEl "Game state: Ready"
-  | Displaying => stringToEl "Game state: Displaying"
-  | Displayed => stringToEl "Game state: Displayed"
-  | Playing => stringToEl "Game state: Playing"
-  };
 
 type action =
   | Start
@@ -80,8 +65,7 @@ let make ::maxRounds=20 ::numKeys=4 ::maxRetries=3 _children => {
         gameState: Ready,
         round,
         seq: growSeq state.seq state.round numKeys maxRounds,
-        transitionMessage:
-          "Time to go! Start round " ^ string_of_int round
+        transitionMessage: "Time to go! Start round " ^ string_of_int round
       }
     | Display => ReasonReact.Update {...state, gameState: Displaying}
     | DisplayComplete =>

@@ -13,9 +13,7 @@ let dropHead (list: list 'a) :list 'a =>
   | [_x, ...xs] => xs
   };
 
-let buildRange
-    (length: int)
-    :list int => {
+let buildRange (length: int) :list int => {
   let rec loop (counter: int) (acc: list int) =>
     switch counter {
     | x when x == length => List.rev acc
