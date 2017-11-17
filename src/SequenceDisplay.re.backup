@@ -8,18 +8,19 @@ let stringToEl = ReasonReact.stringToElement;
 /* ReasonReact doesn't play nice with React Devtools. This is a pain
  * point; for development, manually printing out the state turns out
  * to be helpful: */
-let intListToReactString = (intList) => stringToEl(Helpers.intListToString(intList));
+let intListToReactString intList =>
+  stringToEl (Helpers.intListToString intList);
 
 /* FIXME: Having problems with the timer ID ref - given it's an option,
  * seems to have to pass a lot of boilerplate to extract the ID to
  * pass to clearInterval when the component unmounts. I think I may
  * be missing something obvious. */
-exception NoIntervalID(string);
+exception NoIntervalID string;
 
-let extractId = (timerId) =>
+let extractId timerId =>
   switch timerId {
-  | Some(x) => x
-  | None => raise(NoIntervalID("There is no ID referenced"))
+  | Some x => x
+  | None => raise (NoIntervalID "There is no ID referenced")
   };
 
 /* ---------------------------
@@ -44,29 +45,31 @@ type action =
   | Tick;
 
 type state = {
-  displaySeq: list(int),
-  timerId: ref(option(Js.Global.intervalId))
+  displaySeq: list int,
+  timerId: ref (option Js.Global.intervalId)
 };
 
-let sequence = (state, sequenceCompleteNotifier) =>
+let sequence state sequenceCompleteNotifier =>
   switch state.displaySeq {
-  | [] => ReasonReact.SideEffects(sequenceCompleteNotifier)
-  | [_x, ...xs] => ReasonReact.Update({...state, displaySeq: xs})
+  | [] => ReasonReact.SideEffects sequenceCompleteNotifier
+  | [_x, ...xs] => ReasonReact.Update {...state, displaySeq: xs}
   };
 
-let component = ReasonReact.reducerComponent("SequenceDisplay");
+let component = ReasonReact.reducerComponent "SequenceDisplay";
 
-let make = (~displaySeq, ~timeoutDelay=1000, ~displayEndNotifier, _children) => {
+let make ::displaySeq ::timeoutDelay=1000 ::displayEndNotifier _children => {
   ...component,
-  initialState: () => {displaySeq, timerId: ref(None)},
-  reducer: (action, state) =>
+  initialState: fun () => {displaySeq, timerId: ref None},
+  reducer: fun action state =>
     switch action {
-    | Tick => sequence(state, displayEndNotifier)
+    | Tick => sequence state displayEndNotifier
     },
-  didMount: (self) => {
-    self.state.timerId := Some(Js.Global.setInterval(self.reduce((_) => Tick), timeoutDelay));
+  didMount: fun self => {
+    self.state.timerId :=
+      Some (Js.Global.setInterval (self.reduce (fun _ => Tick)) timeoutDelay);
     ReasonReact.NoUpdate
   },
-  willUnmount: (self) => Js.Global.clearInterval(extractId(self.state.timerId^)),
-  render: ({state}) => <p> (intListToReactString(state.displaySeq)) </p>
+  willUnmount: fun self =>
+    Js.Global.clearInterval (extractId !self.state.timerId),
+  render: fun {state} => <p> (intListToReactString state.displaySeq) </p>
 };

@@ -1,8 +1,9 @@
 {
   "name" : "simon",
   "reason" : {"react-jsx" : 2},
-  "bs-dependencies": ["reason-react", "bs-glamor"],
+  "bs-dependencies": ["reason-react"],
   "bsc-flags": ["-bs-super-errors"],
+  "refmt": 3,
   "sources": [
     {
       "dir": "src"
